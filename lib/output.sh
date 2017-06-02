@@ -10,7 +10,7 @@ header() {
 }
 
 indent() {
-	sed -u 's/^/      /'
+	sed -u 's/^/       /'
 }
 
 print() {

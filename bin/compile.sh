@@ -13,8 +13,6 @@ BP_DIR=$(cd $(dirname ${0:-}); cd ..; pwd)
 
 ### Load dependencies
 
-header "Load dependencies"
-
 source $BP_DIR/lib/output.sh
 source $BP_DIR/lib/environment.sh
 source $BP_DIR/lib/dependencies.sh
@@ -50,7 +48,7 @@ restore_dependencies() {
 }
 
 header "Restore /node_modules/"
-restore_dependencies | indent
+restore_dependencies
 
 ### Build-step
 
