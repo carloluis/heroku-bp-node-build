@@ -56,7 +56,12 @@ restore_dependencies | indent
 
 build_step() {
     cd "$BUILD_DIR"
+
+    info "set NODE_ENV=Production"
+    export NODE_ENV='production'
+    
     # execute build step
+    info "npm run build"
     npm run build
 }
 
