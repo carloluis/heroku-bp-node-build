@@ -1,7 +1,10 @@
 #!/bin/bash
 # bin/detect <build-dir>
 
-if [[  $(cd $1; npm run | grep "^\s*build$") ]]; then
+echo $(pwd)
+echo $1
+
+if [[  $(cat "$1/package.json" | grep "\"build\"") ]]; then
 	echo "buildpack - build script detected"
 	exit 0
 else
