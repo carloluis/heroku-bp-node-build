@@ -5,7 +5,7 @@ echo $(pwd)
 echo $1
 
 if [[  $(cat "$1/package.json" | grep "\"build\"") ]]; then
-	echo "buildpack - build script detected"
+	echo "       build script detected!"
 	exit 0
 else
 	exit 1
