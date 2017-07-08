@@ -1,12 +1,12 @@
 #!/bin/bash
 
 info() {
-    echo "       $*" || true
+	echo "       $*" || true
 }
 
 header() {
-    echo "" || true
-    echo "-----> $*" || true
+	echo "" || true
+	echo "-----> $*" || true
 }
 
 indent() {

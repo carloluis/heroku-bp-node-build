@@ -40,13 +40,13 @@ export NODE_ENV='development'
 ### Restore /node_modules/
 
 restore_dependencies() {
-    mv "$BUILD_DIR/node_modules" "$BUILD_DIR/_node_modules_"
-    
-    if $YARN; then
-        yarn_node_modules "$BUILD_DIR"
-    else
-        npm_node_modules "$BUILD_DIR"
-    fi
+	[ -d "$BUILD_DIR/node_modules" ] && mv "$BUILD_DIR/node_modules" "$BUILD_DIR/_node_modules_"
+
+	if $YARN; then
+		yarn_node_modules "$BUILD_DIR" | indent
+	else
+		npm_node_modules "$BUILD_DIR" | indent
+	fi
 }
 
 header "Restore /node_modules/"
@@ -55,17 +55,17 @@ restore_dependencies
 ### Build-step
 
 build_step() {
-    cd "$BUILD_DIR"
+	cd "$BUILD_DIR"
 
-    info "set NODE_ENV=Production"
-    export NODE_ENV='production'
-    
-    # execute build step
-    info "npm run build"
-    npm run build
+	info "set NODE_ENV=Production"
+	export NODE_ENV='production'
 
-    rm -r "$BUILD_DIR/node_modules"
-    mv "$BUILD_DIR/_node_modules_" "$BUILD_DIR/node_modules"
+	# execute build step
+	info "npm run build"
+	npm run build
+
+	rm -r "$BUILD_DIR/node_modules"
+	[ -d "$BUILD_DIR/_node_modules_" ] && mv "$BUILD_DIR/_node_modules_" "$BUILD_DIR/node_modules"
 }
 
 header "Build-step"
