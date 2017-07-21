@@ -40,16 +40,35 @@ export NODE_ENV='development'
 ### Restore /node_modules/
 
 restore_dependencies() {
-	[ -d "$BUILD_DIR/node_modules" ] && mv "$BUILD_DIR/node_modules" "$BUILD_DIR/_node_modules_"
+	[ -d "$BUILD_DIR/node_modules" ] && mv "$BUILD_DIR/node_modules" "$BUILD_DIR/.node_modules"
 
+	# check subdirectories for existing sub-projects
+	for dir in "$BUILD_DIR/"*; do
+		if [[ -d "$dir" && -f "$dir/package.json" ]]; then
+			if [[ -d "$dir/node_modules" ]]; then
+				mv "$dir/node_modules" "$dir/.node_modules"
+			fi
+		fi
+	done
+
+	# install dependencies...
 	if $YARN; then
 		yarn_node_modules "$BUILD_DIR" | indent
 	else
 		npm_node_modules "$BUILD_DIR" | indent
 	fi
+
+	# check for sub-projects...
+	for dir in "$BUILD_DIR/"*; do
+		if [[ -d "$dir" && -f "$dir/package.json" ]]; then
+			if [[ ! -d "$dir/node_modules" ]]; then
+				mv "$dir/.node_modules" "$dir/node_modules"
+			fi
+		fi
+	done
 }
 
-header "Restore /node_modules/"
+header "Restore dependencies..."
 restore_dependencies
 
 ### Build-step
@@ -64,11 +83,18 @@ build_step() {
 	info "npm run build"
 	npm run build
 
-	rm -r "$BUILD_DIR/node_modules"
-	[ -d "$BUILD_DIR/_node_modules_" ] && mv "$BUILD_DIR/_node_modules_" "$BUILD_DIR/node_modules"
+	rm -r "$BUILD_DIR/node_modules" 2>/dev/null || true
+	[ -d "$BUILD_DIR/.node_modules" ] && mv "$BUILD_DIR/.node_modules" "$BUILD_DIR/node_modules"
+
+	for dir in "$BUILD_DIR/"*; do
+		if [[ -d "$dir" && -d "$dir/.node_modules" ]]; then
+			rm -r "$dir/node_modules"
+			mv "$dir/.node_modules" "$dir/node_modules"
+		fi
+	done
 }
 
-header "Build-step"
+header "Execute build step..."
 build_step
 
 ### Restore environmet
