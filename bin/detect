@@ -1,7 +1,7 @@
 #!/bin/bash
 # bin/detect <build-dir>
 
-if [[ $(cat "$1/package.json" | grep "\"build\"") ]]; then
+if [[ $(cat "$1/package.json" | grep '"build"') ]]; then
 	echo "heroku-bp-node-build"
 	exit 0
 else

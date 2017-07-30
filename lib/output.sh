@@ -1,18 +1,18 @@
 #!/bin/bash
 
-info() {
+function info() {
 	echo "       $*" || true
 }
 
-header() {
+function header() {
 	echo "" || true
 	echo "-----> $*" || true
 }
 
-indent() {
+function indent() {
 	sed -u 's/^/       /'
 }
 
-print() {
+function print() {
 	echo "$*" | indent
 }

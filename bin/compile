@@ -1,21 +1,26 @@
 #!/bin/bash
 # bin/compile <build-dir> <cache-dir> <env-dir>
 
-set -e
+### Configure environment
+set -o errexit
+set -o pipefail
 
 ### Configure directories
 
-BUILD_DIR=${1:-}
-CACHE_DIR=${2:-}
-ENV_DIR=${3:-}
+readonly BUILD_DIR="${1:-}"
+readonly CACHE_DIR="${2:-}"
+readonly ENV_DIR="${3:-}"
 
-BP_DIR=$(cd $(dirname ${0:-}); cd ..; pwd)
+readonly BP_DIR=$(cd "$(dirname "${0:-}")"; cd ..; pwd)
 
 ### Load dependencies
 
-source $BP_DIR/lib/output.sh
-source $BP_DIR/lib/environment.sh
-source $BP_DIR/lib/dependencies.sh
+# shellcheck source=$BP_DIR/lib/output.sh
+source "$BP_DIR"/lib/output.sh
+# shellcheck source=$BP_DIR/lib/environment.sh
+source "$BP_DIR"/lib/environment.sh
+# shellcheck source=$BP_DIR/lib/dependencies.sh
+source "$BP_DIR"/lib/dependencies.sh
 
 ### Runtime environment
 
@@ -25,31 +30,33 @@ export_env_dir "$ENV_DIR" | indent
 
 ### Check initial state
 
-[ -f "$BUILD_DIR/yarn.lock" ] && YARN=true || YARN=false
+[[ -d "$BUILD_DIR/node_modules" ]] && PREBUILD=true || PREBUILD=false
+[[ -f "$BUILD_DIR/yarn.lock" ]] && YARN=true || YARN=false
 
 ### Set up development
 
-info "Set up development"
+header "Set up development"
 
-_NPM_CONFIG_PRODUCTION_=${NPM_CONFIG_PRODUCTION:-true}
-_NODE_ENV_=${NODE_ENV:-'production'}
+_NPM_CONFIG_PRODUCTION_="${NPM_CONFIG_PRODUCTION:-true}"
+_NODE_ENV_="${NODE_ENV:-production}"
+
+info "previous config:"
+info "NPM_CONFIG_PRODUCTION = ${_NPM_CONFIG_PRODUCTION_}"
+info "NODE_ENV = ${_NODE_ENV_}"
 
 export NPM_CONFIG_PRODUCTION=false
 export NODE_ENV='development'
 
 ### Restore /node_modules/
 
-restore_dependencies() {
-	[ -d "$BUILD_DIR/node_modules" ] && mv "$BUILD_DIR/node_modules" "$BUILD_DIR/.node_modules"
+function restore_dependencies() {
+	header "restore dependencies..."
 
-	# check subdirectories for existing sub-projects
-	for dir in "$BUILD_DIR/"*; do
-		if [[ -d "$dir" && -f "$dir/package.json" ]]; then
-			if [[ -d "$dir/node_modules" ]]; then
-				mv "$dir/node_modules" "$dir/.node_modules"
-			fi
-		fi
-	done
+	# save root project dependencies
+	$PREBUILD && mv "$BUILD_DIR/node_modules" "$BUILD_DIR/.node_modules"
+
+	# check subdirectories (first level) -> save dependencies copy for subprojects
+	save_subprojects_dependencies "$BUILD_DIR"
 
 	# install dependencies...
 	if $YARN; then
@@ -58,48 +65,40 @@ restore_dependencies() {
 		npm_node_modules "$BUILD_DIR" | indent
 	fi
 
-	# check for sub-projects...
-	for dir in "$BUILD_DIR/"*; do
-		if [[ -d "$dir" && -f "$dir/package.json" ]]; then
-			if [[ ! -d "$dir/node_modules" ]]; then
-				mv "$dir/.node_modules" "$dir/node_modules"
-			fi
-		fi
-	done
+	# check for dependencies in subprojects...
+	check_subproject_dependencies "$BUILD_DIR"
 }
 
-header "Restore dependencies..."
 restore_dependencies
 
 ### Build-step
 
-build_step() {
+function build_step() {
+	header "build step..."
+
 	cd "$BUILD_DIR"
 
-	info "set NODE_ENV=Production"
-	export NODE_ENV='production'
+	info "set NODE_ENV=production"
+	export NODE_ENV=production
 
 	# execute build step
 	info "npm run build"
 	npm run build
 
 	rm -r "$BUILD_DIR/node_modules" 2>/dev/null || true
-	[ -d "$BUILD_DIR/.node_modules" ] && mv "$BUILD_DIR/.node_modules" "$BUILD_DIR/node_modules"
+	[[ -d "$BUILD_DIR/.node_modules" ]] && mv "$BUILD_DIR/.node_modules" "$BUILD_DIR/node_modules"
 
-	for dir in "$BUILD_DIR/"*; do
-		if [[ -d "$dir" && -d "$dir/.node_modules" ]]; then
-			rm -r "$dir/node_modules"
-			mv "$dir/.node_modules" "$dir/node_modules"
-		fi
-	done
+	# restore subprojects dependencies to initial state
+	restore_subprojects "$BUILD_DIR"
 }
 
-header "Execute build step..."
 build_step
 
 ### Restore environmet
 
 info "Restore environment"
 
-export NPM_CONFIG_PRODUCTION=$_NPM_CONFIG_PRODUCTION_
-export NODE_ENV=$_NODE_ENV_
+export NPM_CONFIG_PRODUCTION="$_NPM_CONFIG_PRODUCTION_"
+export NODE_ENV="$_NODE_ENV_"
+
+header "build succeeded!"
