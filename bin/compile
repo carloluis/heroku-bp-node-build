@@ -26,7 +26,7 @@ source "$BP_DIR"/lib/dependencies.sh
 
 header "Runtime environment"
 
-export_env_dir "$ENV_DIR" | indent
+export_env_dir "$ENV_DIR"
 
 ### Check initial state
 
