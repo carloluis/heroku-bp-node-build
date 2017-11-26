@@ -24,8 +24,9 @@ source "$BP_DIR"/lib/dependencies.sh
 
 ### Runtime environment
 
-header "Runtime environment"
+header "runtime environment"
 
+# can't pipe this because piping causes subshells, preventing exports
 export_env_dir "$ENV_DIR"
 
 ### Check initial state
@@ -35,14 +36,14 @@ export_env_dir "$ENV_DIR"
 
 ### Set up development
 
-header "Set up development"
+header "set up development"
 
 _NPM_CONFIG_PRODUCTION_="${NPM_CONFIG_PRODUCTION:-true}"
 _NODE_ENV_="${NODE_ENV:-production}"
 
-info "previous config:"
-info "NPM_CONFIG_PRODUCTION = ${_NPM_CONFIG_PRODUCTION_}"
-info "NODE_ENV = ${_NODE_ENV_}"
+info "------ previous config.: ------"
+info "NPM_CONFIG_PRODUCTION=${_NPM_CONFIG_PRODUCTION_}"
+info "NODE_ENV=${_NODE_ENV_}"
 
 export NPM_CONFIG_PRODUCTION=false
 export NODE_ENV='development'
@@ -96,7 +97,7 @@ build_step
 
 ### Restore environmet
 
-info "Restore environment"
+info "restore environment"
 
 export NPM_CONFIG_PRODUCTION="$_NPM_CONFIG_PRODUCTION_"
 export NODE_ENV="$_NODE_ENV_"
