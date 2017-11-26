@@ -1,8 +1,11 @@
 # Heroku Buildpack for Node.js Build
 
+[![GitHub license](https://img.shields.io/github/license/carloluis/heroku-bp-node-build.svg)](https://github.com/carloluis/heroku-bp-node-build/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/carloluis/heroku-bp-node-build.svg)](https://github.com/carloluis/heroku-bp-node-build/releases)
+
 Heroku buildpack for node apps with build step.
 
-Requires the `build` script in `package.json`.
+Requires _build_ task defined in `package.json` scripts.
 
 ## Configure from `CLI`
 
