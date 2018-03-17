@@ -47,3 +47,7 @@ heroku buildpacks:set https://github.com/carloluis/heroku-bp-node-build#v0.1.0 -
 ## More
 
 More info on buildpacks [here](https://devcenter.heroku.com/articles/buildpacks).
+
+## License
+
+MIT © [Carloluis](https://github.com/carloluis)
