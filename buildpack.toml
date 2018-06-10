@@ -1,0 +1,8 @@
+[buildpack]
+name = "node-build"
+
+[publish.Ignore]
+files = [
+	".editorconfig",
+	".gitignore"
+]
