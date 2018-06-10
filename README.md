@@ -1,11 +1,13 @@
 # Heroku Buildpack for Node.js Build
 
+> Buildpack for Node.js apps with a build step defined on the package.json
+
 [![GitHub license](https://img.shields.io/github/license/carloluis/heroku-bp-node-build.svg)](https://github.com/carloluis/heroku-bp-node-build/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/carloluis/heroku-bp-node-build.svg)](https://github.com/carloluis/heroku-bp-node-build/releases)
 
-Heroku buildpack for node apps with build step.
+## How it works?
 
-Requires _build_ task defined in `package.json` scripts.
+Inspect for a `package.json` file and a _build_ task defined within the _scripts_ section.
 
 ## Configure from `CLI`
 
@@ -19,7 +21,7 @@ heroku create my-app --buildpack heroku/nodejs
 heroku buildpacks:add --index 2 https://github.com/carloluis/heroku-bp-node-build
 ```
 
-## Configure from `app.json` manifest:
+## Configure from _app.json_ manifest:
 
 ```json
 {
@@ -46,7 +48,14 @@ heroku buildpacks:set https://github.com/carloluis/heroku-bp-node-build#v0.1.0 -
 
 ## More
 
-More info on buildpacks [here](https://devcenter.heroku.com/articles/buildpacks).
+Read related info with buildpacks [here](https://devcenter.heroku.com/articles/buildpacks).
+
+<details>
+<summary>Buildpack Registry</summary>
+
+This buildpack is available as `carloluis/node-build` on the [Heroku Buildpack Registry](https://devcenter.heroku.com/articles/buildpack-registry).
+
+</details>
 
 ## License
 
